@@ -1,0 +1,61 @@
+# ============================================
+#  Kong Gateway — Declarative Configuration
+#  DB-less mode: loaded via KONG_DECLARATIVE_CONFIG
+# ============================================
+_format_version: "3.0"
+_transform: true
+
+# ─────────────────────────────────────────────
+# Services (upstreams)
+# ─────────────────────────────────────────────
+services:
+
+  # Go Middleware — AI Proxy
+  - name: ai-proxy-service
+    url: http://ai-proxy:8080
+    connect_timeout: 5000
+    read_timeout: 60000
+    write_timeout: 60000
+    retries: 3
+    routes:
+      - name: ai-route
+        paths:
+          - /v1/ai
+        strip_path: true
+        preserve_host: false
+        protocols:
+          - http
+          - https
+
+  # Java Spring Boot — Monolith Core
+  - name: monolith-core-service
+    url: http://monolith-core:8081
+    connect_timeout: 5000
+    read_timeout: 60000
+    write_timeout: 60000
+    retries: 3
+    routes:
+      - name: admin-route
+        paths:
+          - /v1/admin
+        strip_path: true
+        preserve_host: false
+        protocols:
+          - http
+          - https
+
+# ─────────────────────────────────────────────
+# Plugins (global)
+# ─────────────────────────────────────────────
+plugins:
+  # Request / response logging
+  - name: file-log
+    config:
+      path: /dev/stdout
+      reopen: false
+
+  # Rate limiting (protect upstream services)
+  - name: rate-limiting
+    config:
+      minute: 100
+      policy: local

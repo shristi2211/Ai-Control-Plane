@@ -1,0 +1,229 @@
+# ============================================
+#  AI Control Plane — Docker Compose
+# ============================================
+#  Start:  docker compose up --build
+#  Stop:   docker compose down
+#  Logs:   docker compose logs -f <service>
+# ============================================
+
+services:
+
+  # ────────────────────────────────────────────
+  # API Gateway — Kong (DB-less / Declarative)
+  # ────────────────────────────────────────────
+  kong:
+    image: kong:3.6
+    container_name: kong-gateway
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yaml
+      KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_LOG_LEVEL: info
+    volumes:
+      - ./kong-gateway/kong.yaml:/kong/kong.yaml:ro
+    ports:
+      - "8000:8000"   # Proxy (public traffic)
+      - "8443:8443"   # Proxy SSL
+      - "8001:8001"   # Admin API
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      ai-proxy:
+        condition: service_healthy
+      monolith-core:
+        condition: service_healthy
+    networks:
+      - ai-control-net
+
+  # ────────────────────────────────────────────
+  # Database — PostgreSQL + pgvector
+  # ────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-control-net
+
+  # ────────────────────────────────────────────
+  # Cache / State — Redis
+  # ────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: ai-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-control-net
+
+  # ────────────────────────────────────────────
+  # Service: AI Proxy (Golang)
+  #   The middleware / security layer
+  # ────────────────────────────────────────────
+  ai-proxy:
+    build:
+      context: ./services/ai-proxy
+      dockerfile: Dockerfile
+    container_name: ai-proxy
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DAILY_TOKEN_LIMIT: "10000"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - ai-control-net
+
+  # ────────────────────────────────────────────
+  # Service: Monolith Core (Java Spring Boot)
+  #   Users, Payments, UI API
+  # ────────────────────────────────────────────
+  monolith-core:
+    build:
+      context: ./monolith-core
+      dockerfile: Dockerfile
+    container_name: monolith-core
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ai-control-net
+
+  # ────────────────────────────────────────────
+  # Service: Agent Brain (Python / FastAPI)
+  #   Orchestration State Graph
+  # ────────────────────────────────────────────
+  agent-brain:
+    build:
+      context: ./services/agent-brain
+      dockerfile: Dockerfile
+    container_name: agent-brain
+    restart: unless-stopped
+    environment:
+      PORT: "8082"
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DATA_BRIDGE_URL: http://data-bridge:8083
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8082/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      redis:
+        condition: service_healthy
+      data-bridge:
+        condition: service_healthy
+    networks:
+      - ai-control-net
+
+  # ────────────────────────────────────────────
+  # Service: Data Bridge (Java)
+  #   Legacy SQL / Oracle Connectors
+  # ────────────────────────────────────────────
+  data-bridge:
+    build:
+      context: ./services/data-bridge
+      dockerfile: Dockerfile
+    container_name: data-bridge
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      AI_READER_PASSWORD: ${AI_READER_PASSWORD:-readonly}
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8083/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ai-control-net
+
+# ──────────────────────────────────────────────
+# Volumes
+# ──────────────────────────────────────────────
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local
+
+# ──────────────────────────────────────────────
+# Networks
+# ──────────────────────────────────────────────
+networks:
+  ai-control-net:
+    driver: bridge

@@ -1,0 +1,46 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: data-bridge
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ai_control_plane}
+    username: ${SPRING_DATASOURCE_USERNAME:ai_admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:changeme}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  sql:
+    init:
+      mode: always          # MVP — use Flyway in production
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+# ── Read-only datasource for Text-to-SQL (defense in depth) ──
+app:
+  datasource:
+    readonly:
+      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ai_control_plane}
+      username: ${AI_READER_USERNAME:ai_reader}
+      password: ${AI_READER_PASSWORD:readonly}
+
+# ── LangChain4j ──
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: ${GEMINI_API_KEY:}
+      model-name: gemini-2.0-flash
+      temperature: 0.1
+      log-requests: true
+      log-responses: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
