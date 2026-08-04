@@ -1,5 +1,8 @@
 # 🧠 AI Control Plane — Hybrid Architecture
 
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge)](#license)
+
+
 A fully containerized, polyglot distributed system with **Kong Gateway** as the API entry point, backed by **PostgreSQL + pgvector**, **Redis**, and multiple microservices.
 
 ## Architecture
