@@ -1,21 +1,62 @@
-MIT License
+# Proprietary Software License
 
-Copyright (c) 2026 Shristi Srivastava
+**Copyright (c) 2026 Shristi Srivastava. All Rights Reserved.**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software, including but not limited to its source code, object code, APIs, architecture, documentation, configuration files, databases, user interface, designs, graphics, logos, scripts, deployment files, and all associated materials (collectively, the **"Software"**), is the exclusive intellectual property of the copyright owner.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## 1. Ownership
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+All rights, title, and interest in the Software remain solely with the copyright owner. No ownership rights are transferred by possession, access, or use of the Software.
+
+## 2. No License Granted
+
+No license or permission is granted to any individual or organization to use, copy, modify, merge, publish, distribute, sublicense, lease, rent, sell, reverse engineer, decompile, disassemble, create derivative works from, or otherwise exploit the Software without the prior written permission of the copyright owner.
+
+## 3. Restrictions
+
+Unless expressly authorized in writing, you may **NOT**:
+
+* Use the Software for personal, educational, commercial, or governmental purposes.
+* Copy or reproduce any portion of the Software.
+* Modify, adapt, translate, or create derivative works.
+* Redistribute or publish the Software.
+* Sell, license, rent, lease, or sublicense the Software.
+* Reverse engineer, decompile, or disassemble the Software.
+* Remove or alter copyright notices or proprietary markings.
+* Use any portion of the Software in another application or service.
+* Train artificial intelligence or machine learning models using any part of the Software or its contents.
+* Benchmark, scrape, extract, or replicate the Software, its APIs, architecture, business logic, or user interface.
+
+## 4. Confidentiality
+
+Any access to the Software, its source code, documentation, or related materials is confidential. Unauthorized disclosure or sharing is strictly prohibited.
+
+## 5. Limited Authorized Use
+
+Authorized users, employees, contractors, or partners may use the Software only under a separate written agreement executed by the copyright owner. Such authorization may be revoked at any time.
+
+## 6. Intellectual Property
+
+All copyrights, trademarks, trade secrets, patents, know-how, algorithms, software architecture, business logic, and other intellectual property rights relating to the Software remain the exclusive property of the copyright owner.
+
+## 7. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, OR ACCURACY.
+
+## 8. Limitation of Liability
+
+IN NO EVENT SHALL THE COPYRIGHT OWNER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES ARISING FROM THE USE OF OR INABILITY TO USE THE SOFTWARE.
+
+## 9. Enforcement
+
+Unauthorized use, copying, modification, distribution, reverse engineering, or any other violation of this License may result in civil and criminal penalties under applicable intellectual property laws.
+
+## 10. Contact
+
+For licensing inquiries or permission requests, contact the copyright owner in writing before using any portion of the Software.
+
+---
+
+**Copyright (c) 2026 Shristi Srivastava. All Rights Reserved.**
+
+No rights are granted except those expressly provided in a separate written agreement signed by the copyright owner.
