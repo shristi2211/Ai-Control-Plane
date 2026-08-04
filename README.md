@@ -1,8 +1,5 @@
 # 🧠 AI Control Plane — Hybrid Architecture
 
-[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge)](#license)
-
-
 A fully containerized, polyglot distributed system with **Kong Gateway** as the API entry point, backed by **PostgreSQL + pgvector**, **Redis**, and multiple microservices.
 
 ## Architecture
@@ -92,3 +89,7 @@ All secrets live in `.env` (never committed). See `.env.example` for the templat
 - **monolith-core (Java):** Currently just a stub. Needs User Auth (JWT), Payments integration, and actual UI API endpoints.
 - **agent-brain (Python):** Currently a stub. Needs actual AI orchestration state graph (e.g. LangGraph) and Redis state persistence implementation.
 - **Frontend / UI:** Not started. Dashboard for administrators/users needs to be built.
+
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge)](#license)
+
+
